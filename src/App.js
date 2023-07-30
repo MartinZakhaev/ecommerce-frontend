@@ -1,4 +1,4 @@
-import { Switch, Route } from "react-router-dom/cjs/react-router-dom.min";
+import { Switch, Route } from "react-router-dom";
 import Header from "./components/nav/Header";
 import Home from "./pages/Home";
 import Login from "./pages/auth/Login";
