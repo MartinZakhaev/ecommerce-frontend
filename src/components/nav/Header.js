@@ -20,17 +20,23 @@ const Header = () => {
   return (
     <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal">
       <Item key="home" icon={<HomeOutlined />}>
-        <Link to="/">Home</Link>
+        <Link style={{ textDecoration: "none" }} to="/">
+          Home
+        </Link>
       </Item>
       <SubMenu icon={<SettingOutlined />} title="Username">
         <Item key="setting:1">Option 1</Item>
         <Item key="setting:2">Option 2</Item>
       </SubMenu>
-      <Item key="login" icon={<UserOutlined />}>
-        <Link to="/login">Login</Link>
+      <Item style={{ marginLeft: "auto" }} key="login" icon={<UserOutlined />}>
+        <Link style={{ textDecoration: "none" }} to="/login">
+          Login
+        </Link>
       </Item>
       <Item key="register" icon={<UserAddOutlined />}>
-        <Link to="/register">Register</Link>
+        <Link style={{ textDecoration: "none" }} to="/register">
+          Register
+        </Link>
       </Item>
     </Menu>
   );

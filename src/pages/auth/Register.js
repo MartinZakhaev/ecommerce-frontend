@@ -44,6 +44,11 @@ const Register = () => {
 
     try {
       await auth.sendSignInLinkToEmail(email, config);
+      window.localStorage.setItem(
+        "emailForRegistration",
+        JSON.stringify(email)
+      );
+      setEmail("");
       toast.success(`Email is sent to ${email}.`, {
         position: "top-right",
         autoClose: 5000,
@@ -54,8 +59,8 @@ const Register = () => {
         progress: undefined,
         theme: "light",
       });
-      setLoading(false);
       reset();
+      setLoading(false);
     } catch (error) {
       toast.error("Oops something went wrong, please try again!", {
         position: "top-right",
@@ -67,11 +72,9 @@ const Register = () => {
         progress: undefined,
         theme: "light",
       });
-      setLoading(false);
       reset();
+      setLoading(false);
     }
-    window.localStorage.setItem("emailForRegistration", email);
-    setEmail("");
   };
 
   const registerForm = () => (

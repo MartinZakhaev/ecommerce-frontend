@@ -54,8 +54,18 @@ const RegisterComplete = ({ history }) => {
     };
 
     try {
-      await auth.sendSignInLinkToEmail(email, config);
-      toast.success(`Email is sent to ${email}.`, {
+      const result = await auth.signInWithEmailLink(
+        email,
+        window.location.href
+      );
+      if (result.user.emailVerified) {
+        window.localStorage.removeItem("emailForRegistration");
+        let user = auth.currentUser;
+        await user.updatePassword(password);
+        const idTokenResult = await user.getIdTokenResult();
+        history.push("/");
+      }
+      toast.success(`Registration complete`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -80,9 +90,10 @@ const RegisterComplete = ({ history }) => {
       });
       setLoading(false);
       reset();
+      history.push("/register");
     }
-    window.localStorage.setItem("emailForRegistration", email);
     setEmail("");
+    setPassword("");
   };
 
   const completeRegistrationForm = () => (
@@ -91,24 +102,15 @@ const RegisterComplete = ({ history }) => {
       onFinish={handleSubmit(onSubmitHandler)}
       style={{ minWidth: 250, maxWidth: 250 }}
     >
-      {/* <Space direction="vertical"> */}
       <Item name="email" rules={[yupSync]}>
         <Input
+          value={email}
           placeholder="Enter your email"
           prefix={<MailOutlined className="site-form-item-icon" />}
-          // suffix={
-          //   <Tooltip title="Enter your valid email address">
-          //     <InfoCircleOutlined
-          //       style={{
-          //         color: "rgba(25,0,0,.45)",
-          //       }}
-          //     />
-          //   </Tooltip>
-          // }
-          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
       </Item>
-      <Item>
+      <Item name="password">
         <Input.Password
           autoFocus
           placeholder="Enter your password"
@@ -120,7 +122,7 @@ const RegisterComplete = ({ history }) => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </Item>
-      <Item>
+      <Item name="submitButton">
         <Button
           type="primary"
           htmlType="submit"
@@ -131,7 +133,6 @@ const RegisterComplete = ({ history }) => {
           Complete registration
         </Button>
       </Item>
-      {/* </Space> */}
     </Form>
   );
 
