@@ -26,7 +26,7 @@ const Header = () => {
         <Item key="setting:1">Option 1</Item>
         <Item key="setting:2">Option 2</Item>
       </SubMenu>
-      <Item key="login" icon={<UserOutlined />} className="float-end">
+      <Item key="login" icon={<UserOutlined />}>
         <Link to="/login">Login</Link>
       </Item>
       <Item key="register" icon={<UserAddOutlined />}>

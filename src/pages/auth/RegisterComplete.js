@@ -1,5 +1,11 @@
-import { useState } from "react";
-import { InfoCircleOutlined, MailOutlined } from "@ant-design/icons";
+import { useState, useEffect } from "react";
+import {
+  InfoCircleOutlined,
+  MailOutlined,
+  LockOutlined,
+  EyeTwoTone,
+  EyeInvisibleOutlined,
+} from "@ant-design/icons";
 import { Input, Tooltip, Space, Button, Form } from "antd";
 import { auth } from "../../firebase";
 import { useForm } from "react-hook-form";
@@ -20,12 +26,17 @@ const yupSync = {
   },
 };
 
-const Register = () => {
+const RegisterComplete = ({ history }) => {
   const { Item } = Form;
   const [form] = Form.useForm();
 
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    setEmail(window.localStorage.getItem("emailForRegistration"));
+  }, []);
 
   const {
     handleSubmit,
@@ -74,7 +85,7 @@ const Register = () => {
     setEmail("");
   };
 
-  const registerForm = () => (
+  const completeRegistrationForm = () => (
     <Form
       form={form}
       onFinish={handleSubmit(onSubmitHandler)}
@@ -95,7 +106,18 @@ const Register = () => {
           //   </Tooltip>
           // }
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+        />
+      </Item>
+      <Item>
+        <Input.Password
+          autoFocus
+          placeholder="Enter your password"
+          prefix={<LockOutlined className="site-form-item-icon" />}
+          iconRender={(visible) =>
+            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          }
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
       </Item>
       <Item>
@@ -106,7 +128,7 @@ const Register = () => {
           disabled={loading || !email}
           style={{ minWidth: 250, maxWidth: 250 }}
         >
-          Register
+          Complete registration
         </Button>
       </Item>
       {/* </Space> */}
@@ -115,9 +137,9 @@ const Register = () => {
 
   return (
     <div className="container d-flex min-vh-100 align-items-center justify-content-center">
-      {registerForm()}
+      {completeRegistrationForm()}
     </div>
   );
 };
 
-export default Register;
+export default RegisterComplete;
