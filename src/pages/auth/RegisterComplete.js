@@ -1,30 +1,14 @@
 import { useState, useEffect } from "react";
 import {
-  InfoCircleOutlined,
+  CheckOutlined,
   MailOutlined,
   LockOutlined,
   EyeTwoTone,
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
-import { Input, Tooltip, Space, Button, Form } from "antd";
+import { Input, Button, Form } from "antd";
 import { auth } from "../../firebase";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
-import * as yup from "yup";
-
-const schema = yup
-  .object()
-  .shape({
-    email: yup.string().email("Please enter a valid email address"),
-  })
-  .required();
-
-const yupSync = {
-  async validator({ field }, value) {
-    await schema.validateSyncAt(field, { [field]: value });
-  },
-};
 
 const RegisterComplete = ({ history }) => {
   const { Item } = Form;
@@ -38,20 +22,8 @@ const RegisterComplete = ({ history }) => {
     setEmail(window.localStorage.getItem("emailForRegistration"));
   }, []);
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
-
   const onSubmitHandler = async (e) => {
     setLoading(true);
-    const config = {
-      url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
-      handleCodeInApp: true,
-    };
 
     try {
       const result = await auth.signInWithEmailLink(
@@ -76,7 +48,6 @@ const RegisterComplete = ({ history }) => {
         theme: "light",
       });
       setLoading(false);
-      reset();
     } catch (error) {
       toast.error("Oops something went wrong, please try again!", {
         position: "top-right",
@@ -89,7 +60,6 @@ const RegisterComplete = ({ history }) => {
         theme: "light",
       });
       setLoading(false);
-      reset();
       history.push("/register");
     }
     setEmail("");
@@ -99,10 +69,17 @@ const RegisterComplete = ({ history }) => {
   const completeRegistrationForm = () => (
     <Form
       form={form}
-      onFinish={handleSubmit(onSubmitHandler)}
       style={{ minWidth: 250, maxWidth: 250 }}
+      onFinish={onSubmitHandler}
     >
-      <Item name="email" rules={[yupSync]}>
+      <Item
+        name="email"
+        rules={[
+          { required: true, message: "Email address required" },
+          { type: "email", message: "Please enter a valid email address" },
+        ]}
+        hasFeedback
+      >
         <Input
           value={email}
           placeholder="Enter your email"
@@ -110,7 +87,15 @@ const RegisterComplete = ({ history }) => {
           onChange={(e) => setEmail(e.target.value)}
         />
       </Item>
-      <Item name="password">
+      <Item
+        name="password"
+        rules={[
+          { required: true, message: "Please enter your password" },
+          { min: 6, message: "Password must be at least 6 characters" },
+          { max: 8, message: "Password max characters is 8" },
+        ]}
+        hasFeedback
+      >
         <Input.Password
           autoFocus
           placeholder="Enter your password"
@@ -120,6 +105,35 @@ const RegisterComplete = ({ history }) => {
           }
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+        />
+      </Item>
+      <Item
+        name="passwordConfirm"
+        dependencies={["password"]}
+        rules={[
+          { required: true, message: "Please confirm your password" },
+          { min: 6, message: "Password must be at least 6 characters" },
+          { max: 8, message: "Password max characters is 8" },
+          ({ getFieldValue }) => ({
+            validator(_, value) {
+              if (!value || getFieldValue("password") === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject(
+                "Passwords that you entered does not match"
+              );
+            },
+          }),
+        ]}
+        hasFeedback
+      >
+        <Input.Password
+          autoFocus
+          placeholder="Confirm your password"
+          prefix={<CheckOutlined className="site-form-item-icon" />}
+          iconRender={(visible) =>
+            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          }
         />
       </Item>
       <Item name="submitButton">
