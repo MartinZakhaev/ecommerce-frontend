@@ -1,32 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-  InfoCircleOutlined,
   MailOutlined,
   LockOutlined,
   EyeTwoTone,
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
-import { Input, Tooltip, Space, Button, Form } from "antd";
+import { Layout, Input, Button, Form } from "antd";
 import { auth } from "../../firebase";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
-import * as yup from "yup";
+import { Content } from "antd/es/layout/layout";
 
-const schema = yup
-  .object()
-  .shape({
-    email: yup.string().email("Please enter a valid email address"),
-  })
-  .required();
-
-const yupSync = {
-  async validator({ field }, value) {
-    await schema.validateSyncAt(field, { [field]: value });
-  },
+const contentStyle = {
+  display: "flex",
+  minHeight: "100vh",
+  alignItems: "center",
+  justifyContent: "center",
 };
 
-const RegisterComplete = ({ history }) => {
+const Login = ({ history }) => {
   const { Item } = Form;
   const [form] = Form.useForm();
 
@@ -34,20 +25,8 @@ const RegisterComplete = ({ history }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
-
   const onSubmitHandler = async (e) => {
     setLoading(true);
-    const config = {
-      url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
-      handleCodeInApp: true,
-    };
 
     try {
       const result = await auth.signInWithEmailAndPassword(email, password);
@@ -69,7 +48,6 @@ const RegisterComplete = ({ history }) => {
         theme: "light",
       });
       setLoading(false);
-      reset();
     } catch (error) {
       toast.error("Oops something went wrong, please try again!", {
         position: "top-right",
@@ -82,7 +60,6 @@ const RegisterComplete = ({ history }) => {
         theme: "light",
       });
       setLoading(false);
-      reset();
       history.push("/register");
     }
     setEmail("");
@@ -90,50 +67,59 @@ const RegisterComplete = ({ history }) => {
   };
 
   const loginForm = () => (
-    <Form
-      form={form}
-      onFinish={handleSubmit(onSubmitHandler)}
-      style={{ minWidth: 250, maxWidth: 250 }}
-    >
-      <Item name="email" rules={[yupSync]}>
-        <Input
-          value={email}
-          placeholder="Enter your email"
-          prefix={<MailOutlined className="site-form-item-icon" />}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </Item>
-      <Item name="password">
-        <Input.Password
-          autoFocus
-          placeholder="Enter your password"
-          prefix={<LockOutlined className="site-form-item-icon" />}
-          iconRender={(visible) =>
-            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-          }
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Item>
-      <Item name="submitButton">
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loading}
-          disabled={loading || !email}
-          style={{ minWidth: 250, maxWidth: 250 }}
+    <Content style={contentStyle}>
+      <Form
+        form={form}
+        style={{ minWidth: 250, maxWidth: 250 }}
+        onFinish={onSubmitHandler}
+      >
+        <Item
+          name="email"
+          rules={[
+            { required: true, message: "Email address required" },
+            { type: "email", message: "Please enter a valid email address" },
+          ]}
+          hasFeedback
         >
-          Login
-        </Button>
-      </Item>
-    </Form>
+          <Input
+            value={email}
+            placeholder="Enter your email"
+            prefix={<MailOutlined className="site-form-item-icon" />}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </Item>
+        <Item
+          name="password"
+          rules={[{ required: true, message: "Please enter your password" }]}
+          hasFeedback
+        >
+          <Input.Password
+            autoFocus
+            placeholder="Enter your password"
+            prefix={<LockOutlined className="site-form-item-icon" />}
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Item>
+        <Item name="submitButton">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            disabled={loading || !email}
+            style={{ minWidth: 250, maxWidth: 250 }}
+          >
+            Login
+          </Button>
+        </Item>
+      </Form>
+    </Content>
   );
 
-  return (
-    <div className="container d-flex min-vh-100 align-items-center justify-content-center">
-      {loginForm()}
-    </div>
-  );
+  return <Layout>{loginForm()}</Layout>;
 };
 
-export default RegisterComplete;
+export default Login;

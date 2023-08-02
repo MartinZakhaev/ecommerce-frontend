@@ -1,11 +1,19 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { MailOutlined } from "@ant-design/icons";
-import { Input, Button, Form } from "antd";
+import { Layout, Input, Button, Form } from "antd";
 import { auth } from "../../firebase";
 import { toast } from "react-toastify";
 
-const Register = () => {
+const contentStyle = {
+  display: "flex",
+  minHeight: "100vh",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const Register = ({ history }) => {
   const { Item } = Form;
+  const { Content } = Layout;
   const [form] = Form.useForm();
 
   const [loading, setLoading] = useState(false);
@@ -31,6 +39,7 @@ const Register = () => {
         theme: "light",
       });
       setLoading(false);
+      history.push("/register/success");
     } catch (error) {
       toast.error("Oops something went wrong, please try again!", {
         position: "top-right",
@@ -49,46 +58,44 @@ const Register = () => {
   };
 
   const registerForm = () => (
-    <Form
-      autoComplete="off"
-      form={form}
-      style={{ minWidth: 250, maxWidth: 250 }}
-      onFinish={onSubmitHandler}
-    >
-      <Item
-        name="email"
-        rules={[
-          { required: true, message: "Email address required" },
-          { type: "email", message: "Please enter a valid email address" },
-        ]}
-        hasFeedback
+    <Content style={contentStyle}>
+      <Form
+        autoComplete="off"
+        form={form}
+        style={{ minWidth: 250, maxWidth: 250 }}
+        onFinish={onSubmitHandler}
       >
-        <Input
-          placeholder="Enter your email"
-          prefix={<MailOutlined className="site-form-item-icon" />}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </Item>
-      <Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loading}
-          disabled={loading || !email}
-          style={{ minWidth: 250, maxWidth: 250 }}
+        <Item
+          name="email"
+          rules={[
+            { required: true, message: "Email address required" },
+            { type: "email", message: "Please enter a valid email address" },
+          ]}
+          hasFeedback
         >
-          Register
-        </Button>
-      </Item>
-    </Form>
+          <Input
+            placeholder="Enter your email"
+            prefix={<MailOutlined className="site-form-item-icon" />}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </Item>
+        <Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            disabled={loading || !email}
+            style={{ minWidth: 250, maxWidth: 250 }}
+          >
+            Register
+          </Button>
+        </Item>
+      </Form>
+    </Content>
   );
 
-  return (
-    <div className="container d-flex min-vh-100 align-items-center justify-content-center">
-      {registerForm()}
-    </div>
-  );
+  return <Layout>{registerForm()}</Layout>;
 };
 
 export default Register;

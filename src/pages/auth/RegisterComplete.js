@@ -6,9 +6,17 @@ import {
   EyeTwoTone,
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
-import { Input, Button, Form } from "antd";
+import { Layout, Input, Button, Form } from "antd";
 import { auth } from "../../firebase";
 import { toast } from "react-toastify";
+import { Content } from "antd/es/layout/layout";
+
+const contentStyle = {
+  display: "flex",
+  minHeight: "100vh",
+  alignItems: "center",
+  justifyContent: "center",
+};
 
 const RegisterComplete = ({ history }) => {
   const { Item } = Form;
@@ -67,94 +75,92 @@ const RegisterComplete = ({ history }) => {
   };
 
   const completeRegistrationForm = () => (
-    <Form
-      form={form}
-      style={{ minWidth: 250, maxWidth: 250 }}
-      onFinish={onSubmitHandler}
-    >
-      <Item
-        name="email"
-        rules={[
-          { required: true, message: "Email address required" },
-          { type: "email", message: "Please enter a valid email address" },
-        ]}
-        hasFeedback
+    <Content style={contentStyle}>
+      <Form
+        form={form}
+        style={{ minWidth: 250, maxWidth: 250 }}
+        onFinish={onSubmitHandler}
       >
-        <Input
-          value={email}
-          placeholder="Enter your email"
-          prefix={<MailOutlined className="site-form-item-icon" />}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </Item>
-      <Item
-        name="password"
-        rules={[
-          { required: true, message: "Please enter your password" },
-          { min: 6, message: "Password must be at least 6 characters" },
-          { max: 8, message: "Password max characters is 8" },
-        ]}
-        hasFeedback
-      >
-        <Input.Password
-          autoFocus
-          placeholder="Enter your password"
-          prefix={<LockOutlined className="site-form-item-icon" />}
-          iconRender={(visible) =>
-            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-          }
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Item>
-      <Item
-        name="passwordConfirm"
-        dependencies={["password"]}
-        rules={[
-          { required: true, message: "Please confirm your password" },
-          { min: 6, message: "Password must be at least 6 characters" },
-          { max: 8, message: "Password max characters is 8" },
-          ({ getFieldValue }) => ({
-            validator(_, value) {
-              if (!value || getFieldValue("password") === value) {
-                return Promise.resolve();
-              }
-              return Promise.reject(
-                "Passwords that you entered does not match"
-              );
-            },
-          }),
-        ]}
-        hasFeedback
-      >
-        <Input.Password
-          autoFocus
-          placeholder="Confirm your password"
-          prefix={<CheckOutlined className="site-form-item-icon" />}
-          iconRender={(visible) =>
-            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-          }
-        />
-      </Item>
-      <Item name="submitButton">
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loading}
-          disabled={loading || !email}
-          style={{ minWidth: 250, maxWidth: 250 }}
+        <Item
+          name="email"
+          rules={[
+            { required: true, message: "Email address required" },
+            { type: "email", message: "Please enter a valid email address" },
+          ]}
+          hasFeedback
         >
-          Complete registration
-        </Button>
-      </Item>
-    </Form>
+          <Input
+            value={email}
+            placeholder="Enter your email"
+            prefix={<MailOutlined className="site-form-item-icon" />}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </Item>
+        <Item
+          name="password"
+          rules={[
+            { required: true, message: "Please enter your password" },
+            { min: 6, message: "Password must be at least 6 characters" },
+            { max: 8, message: "Password max characters is 8" },
+          ]}
+          hasFeedback
+        >
+          <Input.Password
+            autoFocus
+            placeholder="Enter your password"
+            prefix={<LockOutlined className="site-form-item-icon" />}
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Item>
+        <Item
+          name="passwordConfirm"
+          dependencies={["password"]}
+          rules={[
+            { required: true, message: "Please confirm your password" },
+            { min: 6, message: "Password must be at least 6 characters" },
+            { max: 8, message: "Password max characters is 8" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue("password") === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  "Passwords that you entered does not match"
+                );
+              },
+            }),
+          ]}
+          hasFeedback
+        >
+          <Input.Password
+            autoFocus
+            placeholder="Confirm your password"
+            prefix={<CheckOutlined className="site-form-item-icon" />}
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+          />
+        </Item>
+        <Item name="submitButton">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            disabled={loading || !email}
+            style={{ minWidth: 250, maxWidth: 250 }}
+          >
+            Complete registration
+          </Button>
+        </Item>
+      </Form>
+    </Content>
   );
 
-  return (
-    <div className="container d-flex min-vh-100 align-items-center justify-content-center">
-      {completeRegistrationForm()}
-    </div>
-  );
+  return <Layout>{completeRegistrationForm()}</Layout>;
 };
 
 export default RegisterComplete;
