@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MailOutlined,
   LockOutlined,
@@ -6,9 +6,12 @@ import {
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
 import { Layout, Input, Button, Form } from "antd";
-import { auth } from "../../firebase";
+import { auth, googleAuthProvider } from "../../firebase";
 import { toast } from "react-toastify";
 import { Content } from "antd/es/layout/layout";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const contentStyle = {
   display: "flex",
@@ -25,19 +28,28 @@ const Login = ({ history }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  let dispatch = useDispatch();
+
+  const { user } = useSelector((state) => ({ ...state }));
+
+  useEffect(() => {
+    if (user && user.token) {
+      history.push("/");
+    }
+  }, [user]);
+
   const onSubmitHandler = async (e) => {
     setLoading(true);
 
     try {
       const result = await auth.signInWithEmailAndPassword(email, password);
-      if (result.user.emailVerified) {
-        window.localStorage.removeItem("emailForRegistration");
-        let user = auth.currentUser;
-        await user.updatePassword(password);
-        const idTokenResult = await user.getIdTokenResult();
-        history.push("/");
-      }
-      toast.success(`Registration complete`, {
+      const { user } = result;
+      const idTokenResult = await user.getIdTokenResult();
+      dispatch({
+        type: "LOGGED_IN_USER",
+        payload: { email: user.email, token: idTokenResult.token },
+      });
+      toast.success(`Welcome ${user.email}`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -48,6 +60,7 @@ const Login = ({ history }) => {
         theme: "light",
       });
       setLoading(false);
+      history.push("/");
     } catch (error) {
       toast.error("Oops something went wrong, please try again!", {
         position: "top-right",
@@ -60,10 +73,47 @@ const Login = ({ history }) => {
         theme: "light",
       });
       setLoading(false);
-      history.push("/register");
     }
     setEmail("");
     setPassword("");
+  };
+
+  const googleLogin = async () => {
+    auth
+      .signInWithPopup(googleAuthProvider)
+      .then(async (result) => {
+        const { user } = result;
+        const idTokenResult = await user.getIdTokenResult();
+        dispatch({
+          type: "LOGGED_IN_USER",
+          payload: { email: user.email, token: idTokenResult.token },
+        });
+        toast.success(`Welcome ${user.email}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setLoading(false);
+        history.push("/");
+      })
+      .catch((error) => {
+        toast.error("Oops something went wrong, please try again!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setLoading(false);
+      });
   };
 
   const loginForm = () => (
@@ -82,6 +132,7 @@ const Login = ({ history }) => {
           hasFeedback
         >
           <Input
+            autoFocus
             value={email}
             placeholder="Enter your email"
             prefix={<MailOutlined className="site-form-item-icon" />}
@@ -94,7 +145,6 @@ const Login = ({ history }) => {
           hasFeedback
         >
           <Input.Password
-            autoFocus
             placeholder="Enter your password"
             prefix={<LockOutlined className="site-form-item-icon" />}
             iconRender={(visible) =>
@@ -115,6 +165,23 @@ const Login = ({ history }) => {
             Login
           </Button>
         </Item>
+        <Item>
+          <Button
+            danger
+            type="primary"
+            loading={loading}
+            disabled={loading}
+            style={{ minWidth: 250, maxWidth: 250 }}
+            onClick={googleLogin}
+          >
+            Login with google
+          </Button>
+        </Item>
+        {/* <Item style={{ marginLeft:"auto" }}> */}
+        <Link style={{ textDecoration: "none" }} to="/forgot/password">
+          Forgot password
+        </Link>
+        {/* </Item> */}
       </Form>
     </Content>
   );

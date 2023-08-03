@@ -31,12 +31,14 @@ const Register = ({ history }) => {
   const onSubmitHandler = async (e) => {
     setLoading(true);
     const config = {
-      url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
+      url: process.env.REACT_APP_FORGOT_PASSWORD_REDIRECT_URL,
       handleCodeInApp: true,
     };
 
     try {
-      await auth.sendSignInLinkToEmail(email, config);
+      await auth.sendPasswordResetEmail(email, config);
+      setEmail("");
+      setLoading(false);
       toast.success(`Email is sent to ${email}.`, {
         position: "top-right",
         autoClose: 5000,
@@ -47,9 +49,10 @@ const Register = ({ history }) => {
         progress: undefined,
         theme: "light",
       });
-      setLoading(false);
       history.push("/register/success");
     } catch (error) {
+      setEmail("");
+      setLoading(false);
       toast.error("Oops something went wrong, please try again!", {
         position: "top-right",
         autoClose: 5000,
@@ -60,10 +63,7 @@ const Register = ({ history }) => {
         progress: undefined,
         theme: "light",
       });
-      setLoading(false);
     }
-    window.localStorage.setItem("emailForRegistration", email);
-    setEmail("");
   };
 
   const registerForm = () => (
@@ -98,7 +98,7 @@ const Register = ({ history }) => {
             disabled={loading || !email}
             style={{ minWidth: 250, maxWidth: 250 }}
           >
-            Register
+            Update password
           </Button>
         </Item>
       </Form>

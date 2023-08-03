@@ -10,6 +10,7 @@ import { Layout, Input, Button, Form } from "antd";
 import { auth } from "../../firebase";
 import { toast } from "react-toastify";
 import { Content } from "antd/es/layout/layout";
+import { useSelector } from "react-redux";
 
 const contentStyle = {
   display: "flex",
@@ -25,6 +26,14 @@ const RegisterComplete = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { user } = useSelector((state) => ({ ...state }));
+
+  useEffect(() => {
+    if (user && user.token) {
+      history.push("/");
+    }
+  }, [user]);
 
   useEffect(() => {
     setEmail(window.localStorage.getItem("emailForRegistration"));
